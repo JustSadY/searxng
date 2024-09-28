@@ -508,6 +508,7 @@ engines:
   - name: btdigg
     engine: btdigg
     shortcut: bt
+    categories: [ files, ctorrent ]
     disabled: true
 
   - name: openverse
@@ -634,12 +635,6 @@ engines:
     disabled: true
     tests: *tests_infobox
 
-  # cloudflare protected
-  - name: digbt
-    engine: digbt
-    shortcut: dbt
-    disabled: true
-
   - name: docker hub
     engine: docker_hub
     shortcut: dh
@@ -649,7 +644,7 @@ engines:
   - name: encyclosearch
     engine: json_engine
     shortcut: es
-    categories: general
+    categories: [ wikimedia ]
     paging: true
     search_url: https://encyclosearch.org/encyclosphere/search?q={query}&page={pageno}&resultsPerPage=15
     results_query: Results
@@ -953,24 +948,24 @@ engines:
     shortcut: mi
     disabled: true
 
-  - name: gpodder
-    engine: json_engine
-    shortcut: gpod
-    paging: false
-    search_url: https://gpodder.net/search.json?q={query}
-    url_query: url
-    title_query: title
-    content_query: description
-    page_size: 19
-    categories: music
-    disabled: true
-    about:
-      website: https://gpodder.net
-      wikidata_id: Q3093354
-      official_api_documentation: https://gpoddernet.readthedocs.io/en/latest/api/
-      use_official_api: false
-      requires_api_key: false
-      results: JSON
+  # - name: gpodder
+  #   engine: json_engine
+  #   shortcut: gpod
+  #   paging: false
+  #   search_url: https://gpodder.net/search.json?q={query}
+  #   url_query: url
+  #   title_query: title
+  #   content_query: description
+  #   page_size: 19
+  #   categories: music
+  #   disabled: true
+  #   about:
+  #     website: https://gpodder.net
+  #     wikidata_id: Q3093354
+  #     official_api_documentation: https://gpoddernet.readthedocs.io/en/latest/api/
+  #     use_official_api: false
+  #     requires_api_key: false
+  #     results: JSON
 
   - name: habrahabr
     engine: xpath
@@ -1266,6 +1261,7 @@ engines:
   - name: nyaa
     engine: nyaa
     shortcut: nt
+    categories: [ files, torrent ]
     disabled: true
 
   - name: mankier
@@ -1286,14 +1282,14 @@ engines:
     disabled: true
 
   # read https://docs.searxng.org/dev/engines/online/mullvad_leta.html
-  - name: mullvadleta
-    engine: mullvad_leta
-    leta_engine: google # choose one of the following: google, brave
-    use_cache: true # Only 100 non-cache searches per day, suggested only for private instances
-    search_url: https://leta.mullvad.net
-    categories: [ general ]
-    shortcut: ml
-    disabled: true
+  # - name: mullvadleta
+  #   engine: mullvad_leta
+  #   leta_engine: google # choose one of the following: google, brave
+  #   use_cache: true # Only 100 non-cache searches per day, suggested only for private instances
+  #   search_url: https://leta.mullvad.net
+  #   categories: [ general ]
+  #   shortcut: ml
+  #   disabled: true
 
   - name: odysee
     engine: odysee
@@ -1345,11 +1341,11 @@ engines:
     shortcut: om
     disabled: true
 
-  - name: opensemanticsearch
-    engine: opensemantic
-    shortcut: oss
-    base_url: "http://localhost:8983/solr/opensemanticsearch/"
-    disabled: true
+  # - name: opensemanticsearch
+  #   engine: opensemantic
+  #   shortcut: oss
+  #   base_url: "http://localhost:8983/solr/opensemanticsearch/"
+  #   disabled: true
 
   - name: openstreetmap
     engine: openstreetmap
@@ -1575,25 +1571,25 @@ engines:
     network: qwant
     disabled: true
 
-  - name: library
-    engine: recoll
-    shortcut: lib
-    base_url: "https://recoll.example.org/"
-    search_dir: ""
-    mount_prefix: /export
-    dl_prefix: "https://download.example.org"
-    categories: files
-    disabled: tru
+  # - name: library
+  #   engine: recoll
+  #   shortcut: lib
+  #   base_url: "https://recoll.example.org/"
+  #   search_dir: ""
+  #   mount_prefix: /export
+  #   dl_prefix: "https://download.example.org"
+  #   categories: files
+  #   disabled: tru
 
-  - name: recoll library reference
-    engine: recoll
-    base_url: "https://recoll.example.org/"
-    search_dir: reference
-    mount_prefix: /export
-    dl_prefix: "https://download.example.org"
-    shortcut: libr
-    categories: files
-    disabled: true
+  # - name: recoll library reference
+  #   engine: recoll
+  #   base_url: "https://recoll.example.org/"
+  #   search_dir: reference
+  #   mount_prefix: /export
+  #   dl_prefix: "https://download.example.org"
+  #   shortcut: libr
+  #   categories: files
+  #   disabled: true
 
   - name: radio browser
     engine: radio_browser
@@ -2089,7 +2085,7 @@ engines:
   - name: wikicommons.files
     engine: wikicommons
     shortcut: wcf
-    categories: files
+    categories: [ wikimedia ]
     search_type: files
     number_of_results: 10
     disabled: true
@@ -2269,12 +2265,6 @@ engines:
     shortcut: ru
     base_url: https://rumble.com/
     paging: true
-    categories: videos
-    disabled: true
-
-  - name: livespace
-    engine: livespace
-    shortcut: ls
     categories: videos
     disabled: true
 
