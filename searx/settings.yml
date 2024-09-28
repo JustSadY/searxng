@@ -454,6 +454,7 @@ engines:
     display_type: [ "infobox" ]
     base_url: 'https://{language}.wikipedia.org/'
     categories: [ general ]
+    disabled: true
 
   - name: bilibili
     engine: bilibili
