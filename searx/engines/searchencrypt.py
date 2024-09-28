@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 from urllib.parse import urlencode
 from lxml import html
 from searx.utils import extract_text
