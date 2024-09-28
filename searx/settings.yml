@@ -317,6 +317,7 @@ categories_as_tabs:
   it:
   science:
   files:
+  wikimedia:
   social media:
 
 engines:
@@ -453,7 +454,7 @@ engines:
     # add "list" to the array to get results in the results list
     display_type: [ "infobox" ]
     base_url: 'https://{language}.wikipedia.org/'
-    categories: [ general ]
+    categories: [ wikimedia ]
     disabled: true
 
   - name: bilibili
@@ -705,7 +706,7 @@ engines:
     display_type: [ "infobox" ]
     tests: *tests_infobox
     disabled: true
-    categories: [ general ]
+    categories: [ wikimedia ]
 
   - name: duckduckgo
     engine: duckduckgo
@@ -1959,7 +1960,7 @@ engines:
     engine: mediawiki
     weight: 0.5
     shortcut: wb
-    categories: [ general, wikimedia ]
+    categories: [ wikimedia ]
     base_url: "https://{language}.wikibooks.org/"
     search_type: text
     disabled: true
@@ -1983,7 +1984,7 @@ engines:
     engine: mediawiki
     weight: 0.5
     shortcut: wq
-    categories: [ general, wikimedia ]
+    categories: [ wikimedia ]
     base_url: "https://{language}.wikiquote.org/"
     search_type: text
     disabled: true
@@ -1997,7 +1998,7 @@ engines:
     engine: mediawiki
     weight: 0.5
     shortcut: ws
-    categories: [ general, wikimedia ]
+    categories: [ wikimedia ]
     base_url: "https://{language}.wikisource.org/"
     search_type: text
     disabled: true
@@ -2008,7 +2009,7 @@ engines:
   - name: wikispecies
     engine: mediawiki
     shortcut: wsp
-    categories: [ general, science, wikimedia ]
+    categories: [ science, wikimedia ]
     base_url: "https://species.wikimedia.org/"
     search_type: text
     disabled: true
@@ -2041,7 +2042,7 @@ engines:
     engine: mediawiki
     weight: 0.5
     shortcut: wv
-    categories: [ general, wikimedia ]
+    categories: [ wikimedia ]
     base_url: "https://{language}.wikiversity.org/"
     search_type: text
     disabled: true
@@ -2053,7 +2054,7 @@ engines:
     engine: mediawiki
     weight: 0.5
     shortcut: wy
-    categories: [ general, wikimedia ]
+    categories: [ wikimedia ]
     base_url: "https://{language}.wikivoyage.org/"
     search_type: text
     disabled: true
@@ -2080,7 +2081,7 @@ engines:
   - name: wikicommons.audio
     engine: wikicommons
     shortcut: wca
-    categories: music
+    categories: [ wikimedia ]
     search_type: audio
     number_of_results: 10
     disabled: true
@@ -2367,7 +2368,7 @@ engines:
     url_xpath: //li/div[@class="mw-search-result-heading"]/a/@href
     title_xpath: //li//div[@class="mw-search-result-heading"]/a
     content_xpath: //li/div[@class="searchresult"]
-    categories: general
+    categories: [ wikimedia ]
     disabled: true
     about:
       website: https://wikimini.org/
@@ -2493,6 +2494,7 @@ engines:
     engine: doku
     shortcut: uw
     base_url: "https://doc.ubuntu-fr.org"
+    categories: [ wikimedia ]
     disabled: true
 
 # Be careful when enabling this engine if you are
