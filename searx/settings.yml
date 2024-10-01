@@ -341,26 +341,38 @@ engines:
 
   - name: torlock
     engine: torlock
-    categories: [ files, torrent ]
+    categories: [ 'files', 'torrent' ]
     shortcut: trlck
     disabled: true
 
   - name: torrentdownloads
     engine: torrentdownloads
-    categories: [ files, torrent ]
+    categories: [ 'files', 'torrent' ]
     shortcut: trrnd
     disabled: true
 
   - name: limetorrent.net
     engine: limetorrentnet
-    categories: [ files, torrent ]
+    categories: [ 'files', 'torrent' ]
     shortcut: lmtn
     disabled: true
 
   - name: limetorrent.lol
     engine: limetorrentlol
-    categories: [ files, torrent ]
+    categories: [ 'files', 'torrent' ]
     shortcut: lmtl
+    disabled: true
+
+  - name: filemood
+    engine: filemood
+    shortcut: flmd
+    categories: [ 'files' ]
+    disabled: true
+
+  - name: filepursuit
+    engine: filepursuit
+    shortcut: flprst
+    categories: [ 'files' ]
     disabled: true
 
   - name: 9gag
