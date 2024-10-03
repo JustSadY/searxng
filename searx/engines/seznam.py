@@ -26,15 +26,19 @@ about = {
 
 categories = ['general', 'web']
 base_url = 'https://search.seznam.cz/'
+number_of_results = 20
 
 
 def request(query, params):
     response_index = get(base_url, headers=params['headers'], raise_for_httperror=True)
     dom = html.fromstring(response_index.text)
+    num = (params.get('pageno', 1) - 1) * number_of_results
 
     url_params = {
         'q': query,
         'oq': query,
+        'count': number_of_results,
+        'from': num,
     }
     for e in eval_xpath_list(dom, '//input[@type="hidden"]'):
         name = e.get('name')

@@ -2150,6 +2150,7 @@ engines:
     disabled: true
 
   - name: seznam
+    number_of_results: 20
     shortcut: szn
     engine: seznam
     disabled: true
@@ -2249,6 +2250,7 @@ engines:
     # https://docs.searxng.org/dev/engines/online/yacy.html
     engine: yacy
     categories: general
+    number_of_results: 100
     search_type: text
     base_url:
       - https://yacy.searchlab.eu

@@ -41,6 +41,7 @@ news_results_xpath = '//section[contains(@class, "news-search-result")]//article
 news_url_xpath = './/h2/a/@href'
 news_title_xpath = './/h2/a'
 news_content_xpath = './/p[@class="s"]'
+number_of_results = 40
 
 
 def init(_):
@@ -53,6 +54,7 @@ def request(query, params):
         'q': query,
         'safe': min(params['safesearch'], 1),
         'fmt': search_type,
+        't': number_of_results,
     }
 
     if search_type == '':
