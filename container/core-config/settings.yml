@@ -1,0 +1,682 @@
+# SearXNG settings for the torrent / deep-research / data instance.
+#
+# The whole default engine list is removed: "keep_only: []" leaves no engine.
+# Every engine below is added by this file and is enabled by default.
+#
+# Docs: https://docs.searxng.org/admin/settings/settings.html
+
+use_default_settings:
+  engines:
+    keep_only: []
+
+general:
+  instance_name: "SearXNG Deep"
+  debug: false
+  enable_metrics: true
+  donation_url: false
+  contact_url: false
+
+brand:
+  docs_url: https://docs.searxng.org/
+  public_instances: https://searx.space
+  wiki_url: https://github.com/searxng/searxng/wiki
+  issue_url: https://github.com/searxng/searxng/issues
+
+search:
+  safe_search: 0
+  # DuckDuckGo autocomplete needs the (removed) duckduckgo engine loaded.
+  # The Wikipedia engine is enabled, so its autocomplete backend works.
+  autocomplete: "wikipedia"
+  autocomplete_min: 3
+  default_lang: "auto"
+  # Keep JSON enabled so the instance can also be used from scripts.
+  formats:
+    - html
+    - json
+  ban_time_on_fail: 5
+  max_ban_time_on_fail: 120
+  suspended_times:
+    SearxEngineAccessDenied: 180
+    SearxEngineCaptcha: 3600
+    SearxEngineTooManyRequests: 180
+    cf_SearxEngineCaptcha: 1296000
+    cf_SearxEngineAccessDenied: 86400
+    recaptcha_SearxEngineCaptcha: 604800
+
+server:
+  # Is overwritten by ${SEARXNG_SECRET} from container/.env
+  secret_key: "ultrasecretkey"
+  limiter: false
+  public_instance: false
+  image_proxy: true
+  http_protocol_version: "1.1"
+  method: "GET"
+  default_http_headers:
+    X-Content-Type-Options: nosniff
+    X-Download-Options: noopen
+    X-Robots-Tag: noindex, nofollow
+    Referrer-Policy: no-referrer
+
+valkey:
+  # The "valkey" service from docker-compose.yml
+  url: "valkey://valkey:6379/0"
+
+ui:
+  default_theme: simple
+  center_alignment: false
+  query_in_title: false
+  default_locale: ""
+  search_on_category_select: true
+  hotkeys: default
+  url_formatting: pretty
+  theme_args:
+    simple_style: auto
+
+outgoing:
+  # Torrent and academic sites can be slow.
+  request_timeout: 6.0
+  max_request_timeout: 20.0
+  pool_connections: 100
+  enable_http2: true
+  useragent_suffix: ""
+  networks:
+    # PubMed serves a bot-challenge page over HTTP/2; HTTP/1.1 returns the
+    # normal search-results HTML. The pubmed engine below uses this network.
+    pubmed_http1:
+      enable_http2: false
+
+categories_as_tabs:
+  general:
+  files:
+  science:
+  it:
+  data:
+
+engines:
+  # -------------------------------------------------------------------------
+  # TORRENT / FILE SEARCH
+  # -------------------------------------------------------------------------
+
+  - name: kickass
+    engine: kickass
+    shortcut: kc
+    categories: [files]
+    timeout: 8.0
+    disabled: false
+
+  - name: piratebay
+    engine: piratebay
+    shortcut: tpb
+    categories: [files]
+    url: https://thepiratebay.org/
+    timeout: 8.0
+    disabled: false
+
+  - name: bt4g
+    engine: bt4g
+    shortcut: bt4g
+    categories: [files]
+    timeout: 8.0
+    disabled: false
+
+  # Torrents-CSV exposes a public JSON API; results are direct magnet links.
+  - name: torrents-csv
+    engine: json_engine
+    shortcut: tcsv
+    categories: [files]
+    paging: false
+    search_url: https://torrents-csv.com/service/search?q={query}&size=25
+    results_query: torrents
+    url_query: infohash
+    url_prefix: "magnet:?xt=urn:btih:"
+    title_query: name
+    content_query: description
+    disabled: false
+
+  - name: nyaa
+    engine: nyaa
+    shortcut: nt
+    categories: [files]
+    timeout: 8.0
+    disabled: false
+
+  # Books / documents (also useful as a "deep information" source).
+  - name: annas archive
+    engine: annas_archive
+    shortcut: aa
+    categories: [files, books]
+    # All current mirrors answer search requests with a DDoS-Guard JS challenge
+    # (HTTP 403), which this engine cannot solve. Kept here, disabled, so it can
+    # be enabled after defining a proxy/browser-capable setup.
+    base_url:
+      - https://annas-archive.gl
+      - https://annas-archive.pk
+      - https://annas-archive.gd
+    timeout: 12.0
+    disabled: true
+
+  # -------------------------------------------------------------------------
+  # DEEP INFORMATION / ACADEMIC RESEARCH
+  # -------------------------------------------------------------------------
+
+  - name: arxiv
+    engine: arxiv
+    shortcut: arx
+    categories: [science]
+    timeout: 10.0
+    disabled: false
+
+  - name: crossref
+    engine: crossref
+    shortcut: cr
+    categories: [science]
+    timeout: 30.0
+    disabled: false
+
+  - name: openalex
+    engine: openalex
+    shortcut: oa
+    categories: [science]
+    timeout: 10.0
+    # OpenAlex works without a key, but a key or a polite-pool e-mail raises
+    # the rate limit. Uncomment and set a real address if you have one:
+    # mailto: "you@example.com"
+    disabled: false
+
+  - name: semantic scholar
+    engine: semantic_scholar
+    shortcut: se
+    categories: [science]
+    timeout: 10.0
+    disabled: false
+
+  # PubMed's official E-utilities search endpoint currently rejects
+  # "retstart=0" with HTTP 500, so use the public search page instead.
+  - name: pubmed
+    engine: xpath
+    shortcut: pub
+    categories: [science]
+    network: pubmed_http1
+    paging: true
+    search_url: https://pubmed.ncbi.nlm.nih.gov/?term={query}&page={pageno}
+    results_xpath: //article[contains(@class, "full-docsum")]
+    url_xpath: .//a[contains(@class, "docsum-title")]/@href
+    title_xpath: .//a[contains(@class, "docsum-title")]//text()
+    content_xpath: .//div[contains(@class, "full-view-snippet")]//text()
+    timeout: 20.0
+    disabled: false
+
+  - name: europepmc
+    engine: europepmc
+    shortcut: epmc
+    categories: [science]
+    timeout: 20.0
+    disabled: false
+
+  - name: openlibrary
+    engine: openlibrary
+    shortcut: ol
+    categories: [general, books]
+    timeout: 10.0
+    disabled: false
+
+  - name: wikidata
+    engine: wikidata
+    shortcut: wd
+    categories: [general]
+    timeout: 5.0
+    weight: 2
+    display_type: ["infobox", "list"]
+    disabled: false
+
+  - name: wikipedia
+    engine: wikipedia
+    shortcut: wp
+    categories: [general]
+    display_type: ["infobox", "list"]
+    disabled: false
+
+  - name: boardreader
+    engine: boardreader
+    shortcut: boa
+    categories: [general, social media]
+    timeout: 10.0
+    disabled: false
+
+  - name: crowdview
+    engine: json_engine
+    shortcut: cv
+    categories: [general]
+    paging: false
+    search_url: https://crowdview-next-js.onrender.com/api/search-v3?query={query}
+    results_query: results
+    url_query: link
+    title_query: title
+    content_query: snippet
+    title_html_to_text: true
+    content_html_to_text: true
+    disabled: false
+
+  # -------------------------------------------------------------------------
+  # DATA / DATASETS
+  # -------------------------------------------------------------------------
+
+  - name: internet archive
+    engine: json_engine
+    shortcut: ia
+    categories: [general, files, data]
+    paging: true
+    page_size: 20
+    first_page_num: 1
+    search_url: https://archive.org/advancedsearch.php?q={query}&fl[]=identifier&fl[]=title&fl[]=description&rows=20&page={pageno}&output=json
+    results_query: response/docs
+    url_query: identifier
+    url_prefix: https://archive.org/details/
+    title_query: title
+    content_query: description
+    content_html_to_text: true
+    disabled: false
+
+  - name: datacite
+    engine: json_engine
+    shortcut: dc
+    categories: [science, data]
+    paging: true
+    page_size: 20
+    first_page_num: 1
+    search_url: https://api.datacite.org/dois?query={query}&page[size]=20&page[number]={pageno}
+    results_query: data
+    url_query: attributes/doi
+    url_prefix: https://doi.org/
+    title_query: attributes/titles/0/title
+    content_query: attributes/descriptions/0/description
+    content_html_to_text: true
+    disabled: false
+
+  - name: zenodo
+    engine: json_engine
+    shortcut: zen
+    categories: [science, data]
+    paging: true
+    page_size: 20
+    first_page_num: 1
+    search_url: https://zenodo.org/api/records?q={query}&size=20&page={pageno}
+    results_query: hits/hits
+    url_query: links/self_html
+    title_query: metadata/title
+    content_query: metadata/description
+    content_html_to_text: true
+    disabled: false
+
+  - name: gbif
+    engine: json_engine
+    shortcut: gbif
+    categories: [science, data]
+    paging: true
+    page_size: 20
+    first_page_num: 0
+    search_url: https://api.gbif.org/v1/dataset/search?q={query}&limit=20&offset={pageno}
+    results_query: results
+    url_query: key
+    url_prefix: https://www.gbif.org/dataset/
+    title_query: title
+    content_query: description
+    content_html_to_text: true
+    disabled: false
+
+  - name: figshare
+    engine: json_engine
+    shortcut: fig
+    categories: [science, data]
+    paging: true
+    page_size: 1
+    first_page_num: 1
+    method: POST
+    search_url: https://api.figshare.com/v2/articles/search
+    request_body: '{{"search_for": "{query}", "page_size": 20, "page": {pageno}}}'
+    headers:
+      Content-Type: application/json
+    url_query: url_public_html
+    title_query: title
+    content_query: defined_type_name
+    disabled: false
+
+  - name: huggingface datasets
+    engine: huggingface
+    huggingface_endpoint: datasets
+    shortcut: hfd
+    categories: [it]
+    disabled: false
+
+  - name: pdbe
+    engine: pdbe
+    shortcut: pdb
+    categories: [science]
+    disabled: false
+
+  - name: national vulnerability database
+    engine: nvd
+    shortcut: nvd
+    categories: [it]
+    timeout: 10.0
+    disabled: false
+
+  # -------------------------------------------------------------------------
+  # DEEP REGISTRIES & GLOBAL OPEN DATABASES
+  # -------------------------------------------------------------------------
+
+  # Global Legal Entity Identifier Foundation - 2M+ legal entity records,
+  # corporate names, registered addresses, jurisdictions and LEI identifiers.
+  - name: gleif
+    engine: json_engine
+    shortcut: gleif
+    categories: [general, data]
+    paging: false
+    search_url: https://api.gleif.org/api/v1/lei-records?filter[fulltext]={query}&page[size]=20
+    results_query: data
+    url_query: id
+    url_prefix: "https://search.gleif.org/#/record/"
+    title_query: attributes/entity/legalName/name
+    content_query: attributes/entity/legalAddress/city
+    timeout: 10.0
+    disabled: false
+
+  # US Securities and Exchange Commission (SEC EDGAR) - official corporate
+  # filings, annual 10-K / quarterly 10-Q reports and registered companies.
+  - name: sec edgar
+    engine: json_engine
+    shortcut: sec
+    categories: [general, data]
+    paging: false
+    search_url: https://efts.sec.gov/LATEST/search-index?q={query}
+    headers:
+      # SEC blocks generic/library user agents; a browser UA is accepted.
+      User-Agent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
+      Accept: "application/json"
+    results_query: hits/hits
+    url_query: _source/ciks/0
+    url_prefix: "https://www.sec.gov/edgar/browse/?CIK="
+    title_query: _source/display_names/0
+    content_query: _source/form
+    timeout: 15.0
+    disabled: false
+
+  # Harvard Dataverse - global open research data repository for scientific,
+  # economic, and public policy datasets.
+  - name: harvard dataverse
+    engine: json_engine
+    shortcut: hd
+    categories: [science, data]
+    paging: true
+    page_size: 20
+    first_page_num: 0
+    send_page_num_on_first_page: true
+    search_url: https://dataverse.harvard.edu/api/search?q={query}&type=dataset&per_page=20&start={pageno}
+    results_query: data/items
+    url_query: url
+    title_query: name
+    content_query: description
+    content_html_to_text: true
+    timeout: 15.0
+    disabled: false
+
+  # Dryad - curated open research database with full abstracts and data DOIs.
+  - name: dryad
+    engine: json_engine
+    shortcut: dryad
+    categories: [science, data]
+    paging: false
+    search_url: https://datadryad.org/api/v2/search?q={query}
+    results_query: _embedded/stash:datasets
+    url_query: identifier
+    url_prefix: "https://datadryad.org/stash/dataset/"
+    title_query: title
+    title_html_to_text: true
+    content_query: abstract
+    content_html_to_text: true
+    timeout: 12.0
+    disabled: false
+
+  # UK Government Open Data Catalog (CKAN) - official government registers,
+  # statistics, spending and infrastructure datasets.
+  - name: data.gov.uk
+    engine: json_engine
+    shortcut: dgovuk
+    categories: [data]
+    paging: true
+    page_size: 20
+    first_page_num: 0
+    send_page_num_on_first_page: true
+    # data.gov.uk redirects to this CKAN host; use it directly because SearXNG
+    # does not follow redirects for engine requests by default.
+    search_url: https://ckan.publishing.service.gov.uk/api/3/action/package_search?q={query}&rows=20&start={pageno}&fl=title,name,notes
+    results_query: result/results
+    url_query: name
+    url_prefix: "https://www.data.gov.uk/dataset/"
+    title_query: title
+    content_query: notes
+    content_html_to_text: true
+    timeout: 10.0
+    disabled: false
+
+  # Open Government Canada - federal open data catalog (CKAN).
+  - name: open canada
+    engine: json_engine
+    shortcut: caod
+    categories: [data]
+    paging: true
+    page_size: 20
+    first_page_num: 0
+    send_page_num_on_first_page: true
+    search_url: https://open.canada.ca/data/api/3/action/package_search?q={query}&rows=20&start={pageno}&fl=title,name,notes
+    results_query: result/results
+    url_query: name
+    url_prefix: "https://open.canada.ca/data/en/dataset/"
+    title_query: title
+    content_query: notes
+    content_html_to_text: true
+    timeout: 3.0
+    # Upstream frequently takes 20-30 seconds; SearXNG then waits for its
+    # global request timeout. Kept defined but disabled until the API is stable.
+    disabled: true
+
+  # data.gov.au - Australian government open data catalog (CKAN).
+  - name: data.gov.au
+    engine: json_engine
+    shortcut: auod
+    categories: [data]
+    paging: true
+    page_size: 20
+    first_page_num: 0
+    send_page_num_on_first_page: true
+    search_url: https://data.gov.au/data/api/3/action/package_search?q={query}&rows=20&start={pageno}&fl=title,name,notes
+    results_query: result/results
+    url_query: name
+    url_prefix: "https://data.gov.au/data/dataset/"
+    title_query: title
+    content_query: notes
+    content_html_to_text: true
+    timeout: 15.0
+    disabled: false
+
+  # data.gov.ie - Irish government open data catalog.
+  # The CKAN API nests an organization title that json_engine would mistake for
+  # the dataset title, so this engine reads the public search page instead.
+  - name: data.gov.ie
+    engine: xpath
+    shortcut: ieod
+    categories: [data]
+    paging: true
+    page_size: 1
+    first_page_num: 1
+    search_url: https://data.gov.ie/dataset?q={query}&page={pageno}
+    results_xpath: //li[contains(@class, "dataset-item")]
+    url_xpath: .//div[contains(@class, "dataset-title-text")]/a[1]/@href
+    title_xpath: .//div[contains(@class, "dataset-title-text")]/a[1]//text()
+    content_xpath: .//div[contains(@class, "dataset-content")]//p//text()
+    timeout: 15.0
+    disabled: false
+
+  # OpenAIRE - European open-science graph: publications, datasets and software.
+  - name: openaire
+    engine: json_engine
+    shortcut: oaire
+    categories: [science, data]
+    paging: true
+    page_size: 20
+    first_page_num: 1
+    search_url: https://api.openaire.eu/graph/v1/researchProducts?search={query}&pageSize=20&page={pageno}
+    results_query: results
+    url_query: instances/0/urls/0
+    title_query: mainTitle
+    content_query: descriptions/0
+    content_html_to_text: true
+    timeout: 15.0
+    disabled: false
+
+  # ClinicalTrials.gov - global registry of clinical studies.
+  - name: clinicaltrials
+    engine: json_engine
+    shortcut: ct
+    categories: [science, data]
+    paging: false
+    search_url: https://clinicaltrials.gov/api/v2/studies?query.term={query}&pageSize=20
+    results_query: studies
+    url_query: protocolSection/identificationModule/nctId
+    url_prefix: "https://clinicaltrials.gov/study/"
+    title_query: protocolSection/identificationModule/briefTitle
+    content_query: protocolSection/descriptionModule/briefSummary
+    content_html_to_text: true
+    timeout: 20.0
+    disabled: false
+
+  # HAL - French open archive of academic publications.
+  - name: hal
+    engine: json_engine
+    shortcut: hal
+    categories: [science]
+    paging: true
+    page_size: 20
+    first_page_num: 0
+    send_page_num_on_first_page: true
+    search_url: https://api.archives-ouvertes.fr/search/?q={query}&fl=title_s,uri_s,abstract_s&rows=20&start={pageno}&wt=json
+    results_query: response/docs
+    url_query: uri_s
+    title_query: title_s/0
+    content_query: abstract_s/0
+    content_html_to_text: true
+    timeout: 15.0
+    disabled: false
+
+  # UK Companies House - official UK company register (public record).
+  - name: uk companies house
+    engine: xpath
+    shortcut: ukch
+    categories: [general, data]
+    paging: true
+    search_url: https://find-and-update.company-information.service.gov.uk/search?q={query}&page={pageno}
+    results_xpath: //li[contains(@class, "type-company")]
+    url_xpath: .//h3/a/@href
+    title_xpath: .//h3/a//text()
+    content_xpath: .//p[@class="meta crumbtrail"]//text() | .//p[not(@class)]//text()
+    timeout: 15.0
+    disabled: false
+
+  # Brønnøysund Register Centre - Norwegian public company register.
+  - name: brreg
+    engine: json_engine
+    shortcut: brreg
+    categories: [general, data]
+    paging: true
+    page_size: 20
+    first_page_num: 0
+    send_page_num_on_first_page: true
+    search_url: https://data.brreg.no/enhetsregisteret/api/enheter?navn={query}&size=20&page={pageno}
+    results_query: _embedded/enheter
+    url_query: organisasjonsnummer
+    url_prefix: "https://virksomhet.brreg.no/nb/oppslag/enheter/"
+    title_query: navn
+    content_query: forretningsadresse/poststed
+    timeout: 15.0
+    disabled: false
+
+  # PRH / YTJ - Finnish public company register.
+  - name: prh
+    engine: json_engine
+    shortcut: prh
+    categories: [data]
+    # The API caps a result set at roughly 100 companies; there is no usable
+    # result-count parameter, so paging is disabled.
+    paging: false
+    search_url: https://avoindata.prh.fi/opendata-ytj-api/v3/companies?name={query}
+    results_query: companies
+    url_query: businessId/value
+    url_prefix: "https://tietopalvelu.ytj.fi/yritys/"
+    title_query: names/name
+    content_query: mainBusinessLine/descriptions/2/description
+    timeout: 25.0
+    disabled: false
+
+  # US Federal Register - official daily journal of US federal rules, notices
+  # and presidential documents (public record).
+  - name: federal register
+    engine: json_engine
+    shortcut: fedreg
+    categories: [general, data]
+    paging: true
+    page_size: 20
+    first_page_num: 1
+    search_url: https://www.federalregister.gov/api/v1/documents.json?conditions%5Bterm%5D={query}&per_page=20&page={pageno}
+    results_query: results
+    url_query: html_url
+    title_query: title
+    content_query: abstract
+    content_html_to_text: true
+    timeout: 15.0
+    disabled: false
+
+  # OpenML - public machine-learning dataset repository (name-based search).
+  - name: openml
+    engine: json_engine
+    shortcut: openml
+    categories: [it, data]
+    paging: true
+    page_size: 20
+    first_page_num: 0
+    send_page_num_on_first_page: true
+    search_url: https://www.openml.org/api/v1/json/data/list/data_name/{query}/limit/20/offset/{pageno}
+    results_query: data/dataset
+    url_query: did
+    url_prefix: "https://www.openml.org/d/"
+    title_query: name
+    content_query: format
+    # OpenML answers 412 with an error object when the name matches no dataset.
+    no_result_for_http_status: [412]
+    timeout: 12.0
+    disabled: false
+
+  # GDELT - global news/event database. The public endpoint allows roughly one
+  # request every 5 seconds, so occasional 429 responses are expected.
+  - name: gdelt
+    engine: json_engine
+    shortcut: gdelt
+    categories: [general]
+    paging: false
+    search_url: https://api.gdeltproject.org/api/v2/doc/doc?query={query}&mode=artlist&maxrecords=20&format=json&sort=datedesc
+    results_query: articles
+    url_query: url
+    title_query: title
+    content_query: domain
+    # The shared public endpoint rate-limits aggressively; treat a 429 as an
+    # empty result instead of suspending the engine for an hour.
+    no_result_for_http_status: [429]
+    timeout: 25.0
+    disabled: false
+
+  # Photon (OpenStreetMap) - global geocoded address, place and administrative boundary database.
+  - name: photon
+    engine: photon
+    shortcut: pho
+    categories: [general]
+    timeout: 8.0
+    disabled: false
